@@ -31,8 +31,11 @@ public:
 };
 
 class Desc : public Base {
-    Desc(int num) : Base(num) {
-        std::cout << "Desc(int num) worked\n";
+private:
+    int value = 0;
+public:
+    Desc(int value) {
+        this->value = value;
     }
 
     Desc() {
@@ -65,6 +68,40 @@ void func3(Base& obj) {
     obj.set_num(obj.get_num() + 1);
     std::cout << "func3(Base &obj) worked\n";
 }
+
+Base func1() {
+    Base o1 = func1();
+    std::cout << "Base func1() static \n";
+    return o1;
+
+};
+Base* func2() {
+    Base o2 = func2();
+    std::cout << "Base func2() static \n";
+    return &o2;
+};
+Base& func3() {
+    Base o3 = func3();
+    std::cout << "Base func3() static \n";
+    return o3;
+};
+Base func4() { 
+    Base* o4 = new Base();
+    std::cout << "Base func4() dynamic \n";
+    return *o4;
+};
+Base* func5() { 
+    Base* o5 = new Base();
+    std::cout << "Base func5() dynamic \n";
+    return o5;
+};
+Base& func6() { 
+    Base* o6 = new Base();
+    std::cout << "Base func6() dynamic \n";
+    return *o6;
+};
+
+
 
 int main()
 {
