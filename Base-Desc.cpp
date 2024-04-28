@@ -75,27 +75,27 @@ Base func1() {
     return o1;
 
 };
-Base* func2() {
+Base* func2() { //UB
     Base o2 = func2();
     std::cout << "Base func2() static \n";
     return &o2;
 };
-Base& func3() {
+Base& func3() {//UB
     Base o3 = func3();
     std::cout << "Base func3() static \n";
     return o3;
 };
-Base func4() { 
+Base func4() { //утечка памяти
     Base* o4 = new Base();
     std::cout << "Base func4() dynamic \n";
     return *o4;
 };
-Base* func5() { 
+Base* func5() { //мб утечка памяти, нунжны умные указатели
     Base* o5 = new Base();
     std::cout << "Base func5() dynamic \n";
     return o5;
 };
-Base& func6() { 
+Base& func6() { //утечка памяти, надо делете
     Base* o6 = new Base();
     std::cout << "Base func6() dynamic \n";
     return *o6;
