@@ -106,6 +106,7 @@ Base* func5_dynamic() {
     std::cout << "Base func5() dynamic \n";
     return o5;
 };
+
 Base& func6_dynamic() { 
     Base* o6 = new Base();
     std::cout << "Base func6() dynamic \n";
@@ -135,7 +136,7 @@ int main()
 
     std::cout<<"\n";
     //r->Base::get_value();
-
+    
     std::cout << "6 Base*& functions:\n";
     Base o1 = func1_static();  
     o1.set_value(3);
@@ -153,16 +154,22 @@ int main()
     o4.set_value(99);
     o4.get_value(); 
 
-    Base* o5 = func5_dynamic(); //мб утечка памяти
+    Base* o5 = func5_dynamic(); 
     o5->set_value(8);
-    delete o5;
+    delete o5; //потенциальная утечка памяти
 
     Base& o6 = func6_dynamic(); //утечка памяти, надо delete&
     o6.set_value(34);
     o6.get_value();
     delete& o6;
 
-    std::cout << "Hello World!\n";
-
     delete r;
+    std::cout << "Hello World!\n";
+    //ответственность на удалении указываемого объекта лежит на unique_ptr
+    std::unique_ptr<Desc> unique_obj(new Desc());
+    unique_obj->some_desc_method();
+    unique_obj.reset();
+    std::shared_ptr<Base> shared_obj(new Desc());
+    shared_obj->set_value(12);
+    shared_obj.reset();
 }
