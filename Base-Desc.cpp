@@ -12,11 +12,11 @@ public:
         std::cout << "Base constructor worked\n";
     }
     Base(const Base* obj) {
-        this->value = obj->value;
+        value = obj->value;
         std::cout << "Base(const Base*obj) worked\n";
     }
     Base(const Base& obj) {
-        this->value = obj.value;
+        value = obj.value;
         std::cout << "Base(const Base &obj) worked\n";
     }
     virtual ~Base() {
@@ -51,16 +51,16 @@ public:
     }
 };
 
-void func1(Base obj) {
-    obj.get_value();
-    std::cout << __LINE__ << " " << "func1(Base * obj) worked\n";
+void func1(Base object) {
+    object.get_value();
+    std::cout << __LINE__ << " " << "func1(Base obj) worked\n";
 }
 
 void func2(Base* obj) {
-    //obj->get_value();
-    //obj->some_desc_method(); не сработает, можно привести тип
+    obj->get_value();
+    //obj->some_desc_method();
     Desc* c = dynamic_cast<Desc*>(obj);
-    if (c != nullptr){ //действительно ли хранится по адресу объект Desc* ?
+    if (c != nullptr){ //действительно ли хранится по адресу объект Desc* 
         c->some_desc_method();
         std::cout << __LINE__ << " " << "func2(Base *obj) with derived Desc object worked\n";
     }
@@ -119,57 +119,62 @@ int main()
 {    
     Base basePrimer;
     Desc descPrimer; //вызовется конструктор Base и Desc  
-    Base* r = new Desc(); //неявный конструктор Base и конструктор Desc 
-    //Desc::Desc(); можно так вызвать конкретный конструктор
+    Base *r = new Desc(); //неявный конструктор Base и конструктор Desc 
     
     std::cout << "\n";
     std::cout << "3 void functions:\n";
-    func1(basePrimer);
-    func1(descPrimer); //передаем копию desc типа base
+    basePrimer.set_value(20);
+    func1(basePrimer);//передаем существующий, создаем копию внутри функции, изменяем копию и не изменяем исходный
+    func1(descPrimer); 
 
-    func2(&basePrimer); //basePrimer не является объектом-потомком Desc
+    func2(&basePrimer); //передаем единственный адрес на уже существующий объект
+    //функция принимает указатель, у нас его нет, но есть адрес объекта, а указатель хранит адрес
     func2(&descPrimer);
-    func2(r); //r типа Base*, указывает на Desc
+    func2(r); 
 
     func3(basePrimer);
     func3(descPrimer);
+    func3(*r);
 
     std::cout<<"\n";
     //r->Base::get_value();
     
     std::cout << "6 Base*& functions:\n";
-    Base o1 = func1_static();  
+    Base o1 = func1_static();
+    std::cout << std::endl;
     o1.set_value(3);
+    std::cout << std::endl;
     o1.get_value();
+    std::cout << std::endl;
+
 
     Base* o2 = func2_static();
     o2->get_value();
-    //delete o2; UB объект удалился в функции, удалять нечего
 
-    Base &o3 = func3_static(); //возвращает ссылку на локальную переменную внутри функции
+    Base& o3 = func3_static();
     o3.get_value();
-    //delete &o3; UB объект удалился в функции, удалять нечего
 
-    Base o4 = func4_dynamic();//локальный объект не удалится в функции, висит в памяти
-    o4.set_value(99);
-    o4.get_value(); 
+    Base o4 = func4_dynamic();
+    
+    Base* o5 = func5_dynamic();
+    delete o5;
 
-    Base* o5 = func5_dynamic(); 
-    o5->set_value(8);
-    delete o5; //потенциальная утечка памяти
+    Base& o6 = func6_dynamic();
+    delete &o6;
 
-    Base& o6 = func6_dynamic(); //утечка памяти, надо delete&
-    o6.set_value(34);
-    o6.get_value();
-    delete& o6;
-
+    std::cout << std::endl;
     delete r;
-    std::cout << "Hello World!\n";
-    //ответственность на удалении указываемого объекта лежит на unique_ptr
-    std::unique_ptr<Desc> unique_obj(new Desc());
-    unique_obj->some_desc_method();
-    unique_obj.reset();
-    std::shared_ptr<Base> shared_obj(new Desc());
-    shared_obj->set_value(12);
-    shared_obj.reset();
+    std::cout << "Hello World!\n";\
+
+
+    std::unique_ptr<Desc> obj1(new Desc());
+    obj1->some_desc_method();
+    //obj1.reset();
+
+    std::unique_ptr<Desc> obj2 = std::make_unique<Desc>();
+
+    std::shared_ptr<Base> obj3 = move(obj2);
+    obj3->set_value(12);
+
+    //obj3.reset();
 }
